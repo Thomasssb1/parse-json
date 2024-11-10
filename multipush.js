@@ -5,8 +5,6 @@ export function multiPush(array, itemToPush, ...indices) {
     currentArray = currentArray[indices[0]];
     multiPush(currentArray, itemToPush, ...indices.slice(1));
   } else {
-    console.log(indices);
-    console.log(!Array.isArray(currentArray));
     if (!Array.isArray(currentArray)) {
       currentArray = [currentArray[indices[0]], itemToPush];
     } else {
@@ -17,13 +15,10 @@ export function multiPush(array, itemToPush, ...indices) {
   return currentArray;
 }
 
+// test harness for multipush function
 function main() {
-  let arr = [5, [3, [6, 7], [4, 5]]];
-
-  multiPush(arr, 4, 1, 2, 1);
-  console.log(arr);
-
   let tree = [[], [[{}, "key1"], {}]];
   multiPush(tree, "value1", 1, 0, 1, 0);
   console.log(tree);
 }
+main();

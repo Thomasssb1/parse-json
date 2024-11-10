@@ -1,3 +1,7 @@
+"use strict";
+import { multiPush } from "./multipush.js";
+import { Node } from "./node.js";
+
 export default class Tree {
   constructor(root) {
     this.root = new Node(root);
@@ -6,67 +10,38 @@ export default class Tree {
 
   addNode(parent, childValue) {
     this.size++;
-    let newNode = new Node(childValue);
+    let newNode = new Node(childValue, parent);
     parent.addChild(newNode);
     return newNode;
   }
 
-  look(prevNodes, lastNodeIndex) {
-    if (prevNodes.length == this.size || lastNodeIndex < 0) {
-      return prevNodes;
-    } else {
-      console.log(
-        prevNodes[lastNodeIndex].getChildren().map((node) => node.value)
-      );
-      if (prevNodes[lastNodeIndex].getChildren().length == 0) {
-        return this.look(prevNodes, lastNodeIndex - 1);
-      } else {
-        let nodeChildren = prevNodes[lastNodeIndex].getChildren();
-        return this.look(
-          [...prevNodes, ...nodeChildren],
-          lastNodeIndex + nodeChildren.length
+  look(currentNode, nodeList = []) {
+    currentNode.visit();
+    let indices = [];
+    let parent = currentNode.getParent();
+    while (parent != null) {
+      indices.push(1);
+      parent = parent.getParent();
+    }
+    console.log(indices);
+
+    let children = currentNode.getChildren();
+    for (let i = 0; i < children.length; i++) {
+      if (!children[i].isVisited()) {
+        console.log("pushing:");
+        console.log(
+          `nl: ${nodeList} // child: ${children[
+            i
+          ].toString()} // indices: ${indices}`
         );
+        multiPush(nodeList, children[i].toString(), ...indices);
+        this.look(children[i], nodeList);
       }
     }
+    return nodeList;
   }
 }
 
 Tree.prototype.toString = function TreeToString() {
   return `Tree size: ${this.size}`;
 };
-
-class Node {
-  #children;
-  #visited;
-
-  constructor(value) {
-    this.value = value;
-    this.#children = [];
-    this.#visited = false;
-  }
-
-  addChild(child) {
-    this.#children.push(child);
-  }
-
-  removeChild(child) {
-    let index = this.#children.indexOf(child);
-    if (index > -1) {
-      this.#children.splice(index, 1);
-    } else {
-      console.log("Child not found");
-    }
-  }
-
-  setValue(value) {
-    this.value = value;
-  }
-
-  getChildren() {
-    return this.#children;
-  }
-
-  get [Symbol.toStringTag]() {
-    return `Node value: ${this.value}`;
-  }
-}
